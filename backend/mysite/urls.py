@@ -22,5 +22,19 @@ from coride.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('getData/', get_data),
+    path('auth/', auth),
+    path('getClients/', get_clients),
+    path('postClients/', post_clients),
+    path('getCompanies/', get_companies),
+    path('postCompanies/', post_companies),
+    path('getDrivers/', get_drivers),
+    path('postDrivers/', post_drivers),
+    path('getRoutes/', get_routes),
+    path('deleteRoutes/', delete_routes),
+    path('postRoutes/', post_routes),
+    path('getEndOrders/', get_endorders),
+    path('postEndOrders/', post_endorders),
+    path('logout/', logout),
+    path('getUser/', get_user),
     path('', TemplateView.as_view(template_name="home.html"), name="home")
 ]

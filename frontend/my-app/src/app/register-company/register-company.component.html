@@ -1,0 +1,44 @@
+
+<div class="text-center">
+    
+    <main class="form-signin w-100 m-auto mt-5">
+      <form [formGroup]="form" (submit)="submit()">
+        <img src="https://zenprospect-production.s3.amazonaws.com/uploads/pictures/636225928ff5360001917669/picture" width="40" height="40">
+        <h1 class="h3 mb-3 fw-normal">Please register</h1>
+        <div *ngIf="errors!=null" class="alert alert-danger" role="alert">
+            {{errors}}
+          </div>
+        <div class="dropdown mb-3">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            Зарегистрироваться как компания
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a class="dropdown-item" routerLink="/register/client">Клиент</a></li>
+            <li><a class="dropdown-item" routerLink="/register/driver">Водитель</a></li>
+            <li><a class="dropdown-item" routerLink="/register/company">Компания</a></li>
+          </ul>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="name" type="text" class="form-control" id="floatingInput" placeholder="Имя" required>
+          <label for="floatingInput">Наименование</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="email"  type="email" class="form-control" id="email" placeholder="name@example.com">
+          <label for="floatingInput">Email</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="password"  type="password" class="form-control" id="password" placeholder="Password">
+          <label for="floatingPassword">Пароль</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="repeatpassword"  type="password" class="form-control" id="repeatPass" placeholder="Password">
+          <label for="floatingPassword">Повторите пароль</label>
+        </div>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Зарегистрироваться</button>
+      </form>
+    </main>
+    
+    
+          
+        
+</div>

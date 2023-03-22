@@ -1,0 +1,56 @@
+
+<div class="text-center">
+    
+    <main class="form-signin w-100 m-auto mt-5">
+      <form [formGroup]="form" (submit)="submit()">
+        <img src="https://zenprospect-production.s3.amazonaws.com/uploads/pictures/636225928ff5360001917669/picture" width="40" height="40">
+        <h1 class="h3 mb-3 fw-normal">Please register</h1>
+        <div *ngIf="errors!=null" class="alert alert-danger" role="alert">
+          {{errors}}
+        </div>
+        <div class="dropdown mb-3">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            Зарегистрироваться как клиент
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a class="dropdown-item" routerLink="/register/client">Клиент</a></li>
+            <li><a class="dropdown-item" routerLink="/register/driver">Водитель</a></li>
+            <li><a class="dropdown-item" routerLink="/register/company">Компания</a></li>
+          </ul>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="firstname" type="text" class="form-control" id="floatingInput" placeholder="Имя" required>
+          <label for="floatingInput">Имя</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="lastname" type="text" class="form-control" id="floatingInput" placeholder="Фамилия" required>
+          <label for="floatingInput">Фамилия</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="email"  type="email" class="form-control" id="floatingInput" placeholder="name@example.com" required>
+          <label for="floatingInput">Email</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="phone"  type="text" class="form-control" id="floatingInput" placeholder="Телефон" required>
+          <label for="floatingInput">Телефон</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="password"  type="password" class="form-control" id="floatingPassword" placeholder="Password" required>
+          <label for="floatingPassword">Пароль</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="repeatpassword"  type="password" class="form-control" id="repeatPass" placeholder="Password" required>
+          <label for="floatingPassword">Повторите пароль</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input formControlName="company"  type="text" class="form-control" id="floatingPassword" placeholder="Password">
+          <label for="floatingPassword">Компания (Можно оставить пустым)</label>
+        </div>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Зарегистрироваться</button>
+      </form>
+    </main>
+    
+    
+          
+        
+</div>

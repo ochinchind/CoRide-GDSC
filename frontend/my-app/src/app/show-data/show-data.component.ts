@@ -2,7 +2,8 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 import { ConfigService } from '../config.service';
 import { Inject }  from '@angular/core';
 import { DOCUMENT } from '@angular/common'; 
-
+import { HttpClient } from '@angular/common/http';
+import { JwtHelperService } from '@auth0/angular-jwt';
 @Component({
   selector: 'app-show-data',
   templateUrl: './show-data.component.html',
@@ -14,7 +15,7 @@ export class ShowDataComponent implements OnInit, AfterViewInit {
   center: google.maps.LatLngLiteral = { lat: -33.8688, lng: 151.2195 };
   zoom = 13;
   
-  constructor(private myService: ConfigService) { 
+  constructor(private myService: ConfigService, public http: HttpClient, public jwtHelper: JwtHelperService) { 
 
   }
   ngAfterViewInit(): void {
@@ -93,8 +94,6 @@ export class ShowDataComponent implements OnInit, AfterViewInit {
     };
     //creating a map
     var map = new google.maps.Map(document.getElementById('googleMap') as HTMLElement, mapOptions);
-    //creating a map
-    var map = new google.maps.Map(document.getElementById('googleMap') as HTMLElement, mapOptions);
     //create Directions service object to use the route method
     var directionsService = new google.maps.DirectionsService();
 
@@ -107,7 +106,7 @@ export class ShowDataComponent implements OnInit, AfterViewInit {
       origin: (document.getElementById('from') as HTMLInputElement).value,
       destination: (document.getElementById('to') as HTMLInputElement).value,
       travelMode: google.maps.TravelMode.DRIVING, //WALKIMG, BYCICLYNG
-      unitSystem: google.maps.UnitSystem.IMPERIAL
+      unitSystem: google.maps.UnitSystem.METRIC
     }
     //pass request to the route method
     directionsService.route(request, (result, status)=> {
@@ -137,11 +136,20 @@ export class ShowDataComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.myService.getUser().subscribe((data)=>{
+      console.log(data);
+    })
     this.myService.getData().subscribe((data) => {
       this.data = data;
       console.log(data);
     });
     const input: HTMLInputElement = document.getElementById("pac-input") as HTMLInputElement;
+  }
+  ping(){
+    this.http.get("http://127.0.0.1:8000/getUser/").subscribe(
+      (data) => console.log(data),
+      (err) => console.log(err)
+    );
   }
 
   moveMap(event: google.maps.MapMouseEvent){

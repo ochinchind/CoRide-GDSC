@@ -15,5 +15,19 @@
 </head>
 <body>
   <app-root></app-root>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script>
+    function dropdownMenu1565Set(val){
+        if(val.innerHTML!=""){
+          $('#dropdownMenu1565').val(val.innerHTML);
+          $('#dropdownMenu1565').html(val.innerHTML);
+        }
+        else{
+          $('#dropdownMenu165').val('');
+          $('#dropdownMenu165').html('Select Client');
+        }
+    }
+</script>
 </body>
 </html>
