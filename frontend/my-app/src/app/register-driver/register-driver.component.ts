@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 import { ConfigService } from '../config.service';
 
 @Component({
@@ -31,7 +31,13 @@ export class RegisterDriverComponent {
   submit():void {
       if(this.confirmvalidator()){
       this.myService.postDriver(this.form).subscribe({
-        next: ()=>{this.router.navigate(['/login']);}
+        next: ()=>{
+          // Pass a success message to the /login route
+          const navigationExtras: NavigationExtras = {
+            queryParams: { registrationSuccess: true }
+          };
+          this.router.navigate(['/login'], navigationExtras);
+        }
       })
     } else {
       this.errors="password dont match";

@@ -2,18 +2,19 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { take } from 'rxjs';
 import { ConfigService } from '../config.service';
 import { Emitters } from '../emitters/emitters';
 
 @Component({
-  selector: 'app-userview',
-  templateUrl: './userview.component.html',
-  styleUrls: ['./userview.component.css']
+  selector: 'app-companyview',
+  templateUrl: './companyview.component.html',
+  styleUrls: ['./companyview.component.css']
 })
-export class UserviewComponent implements OnInit, AfterViewInit  {
-  originLatLng:any;
-  destinationLatLng:any;
+export class CompanyviewComponent implements OnInit, AfterViewInit  {
+  originLat:any;
+  originLng:any;
+  destinationLat:any;
+  destinationLng:any;
   routeid?:any;
   route?:any;
   active?:boolean;
@@ -231,17 +232,18 @@ export class UserviewComponent implements OnInit, AfterViewInit  {
         const geocoder = new google.maps.Geocoder();
         // Geocode the origin address
         geocoder.geocode({ 'address': this.initial_address }, (results:any, status) => {
-          if (status == 'OK') {
-            console.log(results);
+          if (status === 'OK') {
             // Get the latitude and longitude of the origin location
-            this.originLatLng = results[0].geometry.location;
+            this.originLat = results[0].geometry.location.lat;
+            this.originLng = results[0].geometry.location.lng;
 
             // Geocode the destination address
             geocoder.geocode({ 'address': this.destination }, (results:any, status) => {
-              if (status == 'OK') {
+              if (status === 'OK') {
                 // Get the latitude and longitude of the destination location
-                this.destinationLatLng = results[0].geometry.location;
-                console.log(this.originLatLng.lat());
+                this.destinationLat = results[0].geometry.location.lat;
+                this.destinationLng = results[0].geometry.location.lng;
+              } else {
                 console.log(`Geocode error: ${status}`);
               }
             });
@@ -329,7 +331,7 @@ export class UserviewComponent implements OnInit, AfterViewInit  {
 
   order(){
     if(this.initial_address && this.destination && this.distance && this.time){
-      this.myService.postRoute(this.initial_address, this.originLatLng.lat(), this.originLatLng.lng(), this.destination, this.destinationLatLng.lat(), this.destinationLatLng.lng(), this.distance, this.time, this.id).subscribe((data)=>{
+      this.myService.postRoute(this.initial_address, this.originLat, this.originLng, this.destination, this.destinationLat, this.destinationLng, this.distance, this.time, this.id).subscribe((data)=>{
         console.log(data);
         this.errors=undefined;
         this.active= true;

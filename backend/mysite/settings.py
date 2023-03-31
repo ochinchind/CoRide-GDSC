@@ -45,6 +45,7 @@ REST_FRAMEWORK = {
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'coride',
     'rest_framework',
+    'channels',
     'corsheaders',
 ]
 
@@ -92,7 +94,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
+ASGI_APPLICATION = 'mysite.asgi.application'
 
+CHANNEL_LAYERS = {
+  'default': {
+    'BACKEND': 'channels.layers.InMemoryChannelLayer'
+  }
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

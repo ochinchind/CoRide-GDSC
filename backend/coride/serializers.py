@@ -55,19 +55,19 @@ class DriverPostSerializer(serializers.ModelSerializer):
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = ('id', 'initial_address', 'end_address', 'length_time', 'length_metres', 'client_id', 'active')
+        fields = ('id', 'initial_address', 'lat_init', 'lng_init', 'end_address', 'lat_end', 'lng_end', 'length_time', 'length_metres', 'client_id', 'active')
     
 class RoutePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = ('initial_address', 'end_address', 'length_time', 'length_metres', 'client_id', 'active')
+        fields = ('initial_address','lat_init', 'lng_init', 'end_address','lat_end', 'lng_end',  'length_time', 'length_metres', 'client_id', 'active')
 
 class EndOrdersSerializer(serializers.ModelSerializer):
     class Meta:
         model = EndOrders
-        fields = ('id', 'end_address', 'length_time', 'length_metres', 'route_ids', 'price', 'driver_id', 'date', 'in_process')
+        fields = ('id', 'end_address','lat_end', 'lng_end',  'length_time', 'length_metres', 'route_ids', 'all_lat_lngs_init', 'price', 'driver_id', 'date', 'in_process')
 
-class EndOrdersSerializer(serializers.ModelSerializer):
+class EndOrdersPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = EndOrders
-        fields = ('end_address', 'length_time', 'length_metres', 'route_ids', 'price', 'driver_id', 'in_process')
+        fields = ('end_address','lat_end', 'lng_end',  'length_time', 'length_metres', 'route_ids','all_lat_lngs_init', 'price','in_process')

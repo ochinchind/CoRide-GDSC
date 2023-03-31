@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect
 from django.http import HttpResponse, Http404, JsonResponse
 from coride.models import ExampleModel, Client, Company, Driver, Route, EndOrders
-from coride.serializers import ExampleModelSerializer, CompanyAuthSerializer, CompanyPostSerializer, ClientSerializer, ClientAuthSerializer, ClientPostSerializer, CompanySerializer, DriverSerializer, DriverAuthSerializer, DriverPostSerializer, RouteSerializer, RoutePostSerializer, EndOrdersSerializer
+from coride.serializers import ExampleModelSerializer, CompanyAuthSerializer, CompanyPostSerializer, ClientSerializer, ClientAuthSerializer, ClientPostSerializer, CompanySerializer, DriverSerializer, DriverAuthSerializer, DriverPostSerializer, RouteSerializer, RoutePostSerializer, EndOrdersSerializer, EndOrdersPostSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
@@ -12,6 +12,10 @@ from django.contrib.auth import authenticate, login
 import jwt, datetime
 import decimal
 import re
+import json
+import requests
+from web3storage import Client as Web3Storage
+import googlemaps
 
 # Create your views here.
 def index(request):
@@ -62,11 +66,11 @@ def get_companies(request):
 def get_user(request):
     token = request.headers['Authorization'].split()[1]
     if not token:
-        raise AuthenticationFailed('Unauthenticated')
+        return Response('No token')
     try:
         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
-        raise AuthenticationFailed('Unauthenticated!')
+        return Response(jwt.ExpiredSignatureError)
     print(payload)
     if(payload['type'] == 'company'):
         if(Company.objects.filter(id=payload['id']).first()):
@@ -271,8 +275,46 @@ def post_routes(request):
         print(data)
         serializer = RoutePostSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            results = EndOrders.objects.filter(end_address=data['end_address'])
+            if results.exists():
+                serializer.save()
+                route = Route.objects.get(client_id = client.pk)
+                endorder = EndOrders.objects.get(end_address=data['end_address'])
+                route_ids = endorder.route_ids
+                list_routes = route_ids.split("%")
+                for i in (list_routes):
+                    oldorder = Route.objects.get(id=i)
+                    oldorder_address = oldorder.initial_address
+                    gmaps = googlemaps.Client(key='AIzaSyACsRmvnafsvrTP2Wmd3tTSVLTLhLavG3o')
+                    matrix = gmaps.distance_matrix(data['initial_address'], oldorder_address)
+                    print(matrix)
+                    distance_between_two_routes = matrix['rows'][0]['elements'][0]['distance']['value']
+                    if((int(data['length_metres']) - distance_between_two_routes) >= 0):
+                        endorder.route_ids += '%' +  str(route.pk)
+                        endorder.all_lat_lngs_init += '%' + str(route.lat_init) + '%' + str(route.lng_init)
+                        endorder.length_metres += decimal.Decimal(distance_between_two_routes)
+                        endorder.save()
+                        return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    else:
+                        pass
+
+            else:
+                serializer.save()
+                route = Route.objects.get(client_id = client.pk)
+                print(route.pk)
+                endorderdata = {'end_address': data['end_address'], 'lat_end': data['lat_end'], 'lng_end': data['lng_end'], 'length_time': data['length_time'], 'length_metres': data['length_metres'], 'route_ids': str(route.pk), 'all_lat_lngs_init': str(data['lat_init']) + '%' + str(data['lng_init']), 'price': int(int(data['length_metres'])*0.3), 'in_process': 0}
+                endorderserializer = EndOrdersPostSerializer(data=endorderdata)
+                if endorderserializer.is_valid():
+                    endorderserializer.save()
+                    web3data = Web3Storage('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDQzRkU0NTYyYjBGMDdiOTY3MzNDQTAwNjMyN2QwZkE3MzU2MkY5MzEiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk5MzUyOTQxOTMsIm5hbWUiOiJDb1JpZGUifQ.G71lHpfqh9RH1EFPCjgMy_QxV64tIznsA62y1BQFp8c')
+                    json_string = json.dumps(endorderserializer.data)
+                    print(serializer.data)
+                    with open('my_object.json', 'w') as f:
+                        f.write(json_string)
+                    response = web3data.upload_file('my_object.json')
+                    print(response)
+                    return Response(endorderserializer.data, status=status.HTTP_201_CREATED)
+                return Response(endorderserializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])

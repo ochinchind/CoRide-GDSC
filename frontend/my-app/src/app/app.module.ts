@@ -15,6 +15,10 @@ import { UserviewComponent } from './userview/userview.component';
 import { RegisterDriverComponent } from './register-driver/register-driver.component';
 import { RegisterCompanyComponent } from './register-company/register-company.component';
 import { DriverviewComponent } from './driverview/driverview.component';
+import { WebsocketService } from './websocket.service';
+import { ChatService } from './chat.service';
+import { CompanyviewComponent } from './companyview/companyview.component';
+import { UserprofileComponent } from './userprofile/userprofile.component';
 
 export function tokenGetter() {
   return localStorage.getItem("jwt");
@@ -29,7 +33,9 @@ export function tokenGetter() {
     UserviewComponent,
     RegisterDriverComponent,
     RegisterCompanyComponent,
-    DriverviewComponent
+    DriverviewComponent,
+    CompanyviewComponent,
+    UserprofileComponent
   ],
   imports: [
     BrowserModule,
@@ -46,7 +52,7 @@ export function tokenGetter() {
       },
     })
   ],
-  providers: [],
+  providers: [WebsocketService, ChatService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -20,6 +20,7 @@ export class ConfigService {
   private postroute_url = 'http://127.0.0.1:8000/postRoutes/';
   private getroute_url = 'http://127.0.0.1:8000/getRoutes/';
   private deleteroute_url = 'http://127.0.0.1:8000/deleteRoutes/';
+  private getendroute_url = 'http://127.0.0.1:8000/getEndOrders/';
 
   constructor(private http: HttpClient, private cookieService:CookieService) {
     
@@ -58,9 +59,9 @@ export class ConfigService {
     return this.http.post(this.postdriver_url, form.getRawValue());
   }
 
-  postRoute(from :any, dest :any, distance :any, time :any , id:any):Observable<any> {
+  postRoute(from :any, originLat:any, originLng:any, dest :any, destLan:any, destLng:any, distance :any, time :any , id:any):Observable<any> {
 
-    return this.http.post(this.postroute_url, {initial_address: from, end_address: dest,length_metres: distance,length_time: time, client_id: id, active:1});
+    return this.http.post(this.postroute_url, {initial_address: from, lat_init:originLat, lng_init: originLng, end_address: dest, lat_end:destLan, lng_end:destLng, length_metres: distance,length_time: time, client_id: id, active:1});
   }
 
   deleteRoute(id:any):Observable<any> {
@@ -71,6 +72,11 @@ export class ConfigService {
   getRoute():Observable<any> {
 
     return this.http.get(this.getroute_url);
+  }
+
+  getEndRoutes():Observable<any> {
+
+    return this.http.get(this.getendroute_url);
   }
 
 

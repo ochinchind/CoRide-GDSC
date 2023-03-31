@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 import { ConfigService } from '../config.service';
 
 @Component({
@@ -30,7 +30,13 @@ export class RegisterComponent implements OnInit {
   submit():void {
       if(this.confirmvalidator()){
       this.myService.postClient(this.form).subscribe({
-        next: ()=>{this.router.navigate(['/login']);}
+        next: ()=>{
+          // Pass a success message to the /login route
+          const navigationExtras: NavigationExtras = {
+            queryParams: { registrationSuccess: true }
+          };
+          this.router.navigate(['/login'], navigationExtras);
+        }
       })
     } else {
       this.errors="password dont match";

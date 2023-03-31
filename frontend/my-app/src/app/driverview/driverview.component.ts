@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ConfigService } from '../config.service';
 import { Emitters } from '../emitters/emitters';
+import { ChatService } from '../chat.service';
 
 @Component({
   selector: 'app-driverview',
@@ -12,6 +13,7 @@ import { Emitters } from '../emitters/emitters';
 })
 export class DriverviewComponent implements OnInit, AfterViewInit {
   errors:any;
+  allendroutes?:any;
   id:any;
   active?:any;
   initial_address:any;
@@ -21,8 +23,10 @@ export class DriverviewComponent implements OnInit, AfterViewInit {
   allroutes?:any;
   allclients?:any;
   authenticated = false;
-  constructor(private myService: ConfigService, public http: HttpClient, public jwtHelper: JwtHelperService, private router: Router) { 
-
+  constructor(private chatService: ChatService, private myService: ConfigService, public http: HttpClient, public jwtHelper: JwtHelperService, private router: Router) { 
+    chatService.message?.subscribe(msg => {
+      console.log('Response:' + msg);
+    })
   }
   ngAfterViewInit(): void {
 
@@ -77,6 +81,9 @@ export class DriverviewComponent implements OnInit, AfterViewInit {
     this.myService.getRoute().subscribe((data)=>{
       this.allroutes = data;
     })
+    this.myService.getEndRoutes().subscribe((data)=>{
+      this.allendroutes = data;
+    })
     this.myService.getClients().subscribe((data)=>{
       this.allclients = data;
     })
@@ -104,7 +111,20 @@ export class DriverviewComponent implements OnInit, AfterViewInit {
     return clientname;
   }
 
-  renderRoute(initial_address:any, end_address:any){
+  findlocations(route_ids:any):string{
+    let locations = "";
+    let someroutes = route_ids.split("%");
+    this.allroutes.forEach((element:any) => {
+      someroutes.forEach((element1:any) => {
+        if(element1 == element['id']){
+          locations += " " + element['initial_address'];
+        }
+      });
+    })
+    return locations;
+  }
+
+  renderRoute(route_ids:any, lat_end:any, lng_end:any){
     //setting map options
     var myLatLng = { lat: 38.3460, lng: -0.4907};
     var mapOptions = {
@@ -112,8 +132,16 @@ export class DriverviewComponent implements OnInit, AfterViewInit {
       zoom: 7,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
-    //creating a map
+    const numberArray = route_ids.split("%").map(Number.parseFloat);
+    numberArray.push(lat_end);
+    numberArray.push(lng_end);
+    console.log(numberArray);
     var map = new google.maps.Map(document.getElementById('googleMap') as HTMLElement, mapOptions);
+
+    var point1 = new google.maps.LatLng(numberArray[0], numberArray[1]);
+    var point2 = new google.maps.LatLng(numberArray[2], numberArray[3]);
+
+    //creating a map
     //create Directions service object to use the route method
     var directionsService = new google.maps.DirectionsService();
 
@@ -123,8 +151,8 @@ export class DriverviewComponent implements OnInit, AfterViewInit {
     //bind directions renderer to the map
     directionsDisplay.setMap(map);
     var request = {
-      origin: initial_address,
-      destination: end_address,
+      origin: point1,
+      destination: point2,
       travelMode: google.maps.TravelMode.DRIVING, //WALKIMG, BYCICLYNG
       unitSystem: google.maps.UnitSystem.METRIC
     }
@@ -135,17 +163,68 @@ export class DriverviewComponent implements OnInit, AfterViewInit {
         //get distance and time
         const output = document.querySelector('#output');
         if(output != undefined){
-          output!.innerHTML = "<div class='alert-info'> From: " + initial_address + ".<br />To: " + end_address + ". <br /> Driving distance <i class='fas fa-road'></i>:" + result?.routes[0].legs[0].distance?.text + ".<br /> Duration<i class='fas fa-hourglass-start'></i> : " + result?.routes[0].legs[0].duration?.text + ". </div>";  
+          output!.innerHTML = "<div class='alert-info'> From: " + point1 + ".<br />To: " + point2 + ". <br /> Driving distance <i class='fas fa-road'></i>:" + result?.routes[0].legs[0].distance?.text + ".<br /> Duration<i class='fas fa-hourglass-start'></i> : " + result?.routes[0].legs[0].duration?.text + ". </div>";  
         }
 
 
-        this.initial_address = initial_address;
-        this.destination = end_address;
+        this.initial_address = point1;
+        this.destination = point2;
         this.distance = result?.routes[0].legs[0].distance?.text;
         this.time = result?.routes[0].legs[0].duration?.text;
         this.errors = undefined;
         //directions route
         directionsDisplay.setDirections(result);
+
+        if(numberArray[4]){
+          var directionsService1 = new google.maps.DirectionsService();
+
+          //create a Directions renderer object to display the route
+          var directionsDisplay1 = new google.maps.DirectionsRenderer();
+      
+          //bind directions renderer to the map
+          directionsDisplay1.setMap(map);
+          var point3 = new google.maps.LatLng(numberArray[4], numberArray[5]);
+          var request = {
+            origin: point2,
+            destination: point3,
+            travelMode: google.maps.TravelMode.DRIVING, //WALKIMG, BYCICLYNG
+            unitSystem: google.maps.UnitSystem.METRIC
+          }
+          console.log(request);
+          //pass request to the route method
+          directionsService1.route(request, (result1, status)=> {
+            if(status == google.maps.DirectionsStatus.OK){
+              //get distance and time
+              const output = document.querySelector('#output');
+              if(output != undefined){
+                output!.innerHTML = "<div class='alert-info'> From: " + point1 + ".<br />To: " + point3 + ". <br /> Driving distance <i class='fas fa-road'></i>:" + result1?.routes[0].legs[0].distance?.text + ".<br /> Duration<i class='fas fa-hourglass-start'></i> : " + result1?.routes[0].legs[0].duration?.text + ". </div>";  
+              }
+      
+      
+              this.initial_address = point1;
+              this.destination = point3;
+              this.distance = result1?.routes[0].legs[0].distance?.text;
+              this.time = result1?.routes[0].legs[0].duration?.text;
+              this.errors = undefined;
+              //directions route
+              directionsDisplay1.setDirections(result1);
+
+              } else {
+                //delete route from map
+                directionsDisplay1.setDirections({ routes: [] });
+        
+                //center map in spain
+                map.setCenter(myLatLng);
+                const output = document.querySelector('#output');
+        
+                //show error message 
+                output!.innerHTML = "<div class='alert-danger><i class='fas fa-exclamation-triangle'></i>Could not receive driving distance</div>";
+              }
+            } )
+        }
+
+
+
       } else {
         //delete route from map
         directionsDisplay.setDirections({ routes: [] });
@@ -158,8 +237,7 @@ export class DriverviewComponent implements OnInit, AfterViewInit {
         output!.innerHTML = "<div class='alert-danger><i class='fas fa-exclamation-triangle'></i>Could not receive driving distance</div>";
       }
     } )
-
-
+    
   }
 
 
